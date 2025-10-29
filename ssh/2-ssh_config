@@ -1,0 +1,4 @@
+# This file tells SSH to use my key and not ask for a password
+Host *
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no
