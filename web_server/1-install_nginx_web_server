@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install Nginx, configure it to serve a page with 'Holberton School for the win!', and ensure it runs on port 80
+# Installs Nginx, sets root page to 'Holberton School for the win!', ensures it runs on port 80
 
 # Update package lists
 apt-get update -y
@@ -7,15 +7,21 @@ apt-get update -y
 # Install Nginx
 apt-get install -y nginx
 
-# Make sure the default site root exists
+# Ensure the web root directory exists
 mkdir -p /var/www/html
 
-# Create index.html with required content
+# Remove default index if it exists
+rm -f /var/www/html/index.nginx-debian.html
+
+# Create the required index.html with correct content
 echo "Holberton School for the win!" > /var/www/html/index.html
 
-# Ensure proper permissions (optional but safe)
+# Set permissions so Nginx can serve the page
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
 
-# Start Nginx (without systemctl)
+# Make sure the default Nginx site config points to /var/www/html
+sed -i 's|root /var/www/html;|root /var/www/html;|' /etc/nginx/sites-available/default
+
+# Start or restart Nginx safely without systemctl
 service nginx start || service nginx restart
