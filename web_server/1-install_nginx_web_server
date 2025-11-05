@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
-#This script installs Nginx, configures it to serve a page containing 'Holberton School', and ensures it runs on port 80
+# Install Nginx, configure it to serve a page with 'Holberton School for the win!', and ensure it runs on port 80
 
-#update package lists
+# Update package lists
 apt-get update -y
 
-#Install Nginx
+# Install Nginx
 apt-get install -y nginx
 
-#Ensure Nginx is started
-service nginx start
+# Make sure the default site root exists
+mkdir -p /var/www/html
 
-#Create a custom index.html with required content
-echo "Holberton School for the win" > /var/www/html/index.html
+# Create index.html with required content
+echo "Holberton School for the win!" > /var/www/html/index.html
 
-#Ensure Nginx is running after file update
-service nginx restart
+# Ensure proper permissions (optional but safe)
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html
+
+# Start Nginx (without systemctl)
+service nginx start || service nginx restart
