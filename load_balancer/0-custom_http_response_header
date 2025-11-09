@@ -1,39 +1,33 @@
 #!/usr/bin/env bash
-# Script to configure Nginx with a custom HTTP header X-Served-By
+# Configure Nginx to add X-Served-By HTTP header showing the hostname of the server
 
-# Exit on any error
-set -e
+# Update and install Nginx
+apt-get update -y
+apt-get install -y nginx
 
-# Install Nginx if not installed
-sudo apt-get update -y
-sudo apt-get install -y nginx
+# Get the server hostname
+hostname=$(hostname)
 
-# Replace default config with our custom version
-sudo bash -c 'cat > /etc/nginx/sites-available/default' << 'EOF'
+# Configure default Nginx server to add custom HTTP header
+cat > /etc/nginx/sites-available/default <<EOF
 server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
+    listen 80 default_server;
+    listen [::]:80 default_server;
 
-        root /var/www/html;
-        index index.html index.htm index.nginx-debian.html;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
 
-        server_name _;
+    server_name _;
 
-        # Custom header
-        add_header X-Served-By $hostname;
-
-        location / {
-                try_files $uri $uri/ =404;
-        }
-
-        error_page 404 /custom_404.html;
-        location = /custom_404.html {
-                root /var/www/html;
-                internal;
-        }
+    location / {
+        try_files \$uri \$uri/ =404;
+        add_header X-Served-By \$hostname;
+    }
 }
 EOF
 
-# Restart Nginx to apply changes
-sudo systemctl restart nginx
-echo 1
+# Test Nginx configuration
+nginx -t
+
+# Restart Nginx
+systemctl restart nginx
