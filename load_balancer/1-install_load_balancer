@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Install and configure HAProxy as a load balancer for web-01 and web-02 using round-robin
+
+# Update system and install HAProxy
+apt-get update -y
+apt-get install -y haproxy
+
+# Ensure HAProxy is enabled at boot and managed via init script
+systemctl enable haproxy
+
+# Configure HAProxy
+cat > /etc/haproxy/haproxy.cfg <<EOF
+global
+    log /dev/log    local0
+    log /dev/log    local1 notice
+    daemon
+    maxconn 4096
+    user haproxy
+    group haproxy
+
+defaults
+    log     global
+    mode    http
+    option  httplog
+    option  dontlognull
+    retries 3
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+
+frontend http_front
+    bind *:80
+    default_backend http_back
+
+backend http_back
+    balance roundrobin
+    server web-01 18.208.149.224:80 check
+    server web-02 18.208.149.XXX:80 check
+EOF
+
+# Replace 18.208.149.XXX with the actual IP of web-02
+
+# Test HAProxy configuration
+haproxy -c -f /etc/haproxy/haproxy.cfg
+
+# Restart HAProxy to apply changes
+systemctl restart haproxy
