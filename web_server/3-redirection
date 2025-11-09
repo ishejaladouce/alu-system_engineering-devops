@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Configures Nginx to redirect /redirect_me to another page permanently
+# Configure Nginx to redirect /redirect_me permanently (301) on a fresh Ubuntu machine
 
-# Install nginx if not already installed
-sudo apt-get update -y
-sudo apt-get install -y nginx
+# Update package lists and install Nginx
+apt-get update -y
+apt-get install -y nginx
 
-# Create the redirect configuration
-sudo bash -c "cat > /etc/nginx/sites-available/default <<EOF
+# Overwrite the default Nginx configuration
+cat > /etc/nginx/sites-available/default <<EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -23,8 +23,10 @@ server {
         return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
     }
 }
-EOF"
+EOF
 
-# Restart nginx to apply changes
-sudo systemctl restart nginx
+# Test Nginx configuration
+nginx -t
 
+# Restart Nginx to apply changes
+systemctl restart nginx
