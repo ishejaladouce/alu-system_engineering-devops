@@ -6,11 +6,11 @@
 set -e
 
 # --- Set your student ID ---
-STUDENT_ID="6791"
+STUDENT_ID="6869"
 
 # --- Hardcoded backend web server IPs ---
-WEB1_IP="18.208.149.224"   # 6791-web-01
-WEB2_IP="98.93.251.113"  # 6791-web-02
+WEB1_IP="18.208.149.224"   # 6869-web-01
+WEB2_IP="98.93.251.113"  # 6869-web-02
 
 # --- Construct backend hostnames with student ID ---
 WEB1_HOST="${STUDENT_ID}-web-01"
