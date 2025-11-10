@@ -1,64 +1,16 @@
 #!/usr/bin/env bash
-# 1-install_load_balancer
-# HAProxy setup using hardcoded IPs and including student ID in hostnames
-# Fully functional HAProxy setup for assignment checker
+#Bash script that installs HAProxy & makes configurations
 
-set -e
-
-# --- Set your student ID ---
-STUDENT_ID="6869"
-
-# --- Hardcoded backend web server IPs ---
-WEB1_IP="18.208.149.224"   # 6869-web-01
-WEB2_IP="98.93.251.113"  # 6869-web-02
-
-# --- Construct backend hostnames with student ID ---
-WEB1_HOST="${STUDENT_ID}-web-01"
-WEB2_HOST="${STUDENT_ID}-web-02"
-WEB1_IP="18.208.149.224"  # IP of web-01
-WEB2_IP="98.93.251.113" # IP of web-02
-
-# --- Update packages and install HAProxy ---
-sudo apt update -y
-@@ -25,9 +18,9 @@ sudo systemctl stop nginx || true
-# --- Enable HAProxy to start on boot ---
-sudo systemctl enable haproxy
-
-# --- Add /etc/hosts entries so HAProxy can resolve hostnames ---
-sudo bash -c "echo '${WEB1_IP} ${WEB1_HOST}' >> /etc/hosts"
-sudo bash -c "echo '${WEB2_IP} ${WEB2_HOST}' >> /etc/hosts"
-# --- Add /etc/hosts entries (optional, ensures hostnames resolve) ---
-sudo bash -c "echo '${WEB1_IP} web-01' >> /etc/hosts"
-sudo bash -c "echo '${WEB2_IP} web-02' >> /etc/hosts"
-
-# --- Create HAProxy configuration ---
-sudo bash -c "cat > /etc/haproxy/haproxy.cfg" <<EOF
-@@ -56,21 +49,8 @@ frontend http_front
-
-backend http_back
-   balance roundrobin
-    server web1 ${WEB1_HOST}:80 check
-    server web2 ${WEB2_HOST}:80 check
-EOF
-
-# --- Restart HAProxy to apply changes ---
-sudo systemctl restart haproxy
-
-# --- Output 1 for automated checker ---
-echo 1
-    default_backend http_back
-
-backend http_back
+apt-get -y install software-properties-common
+add-apt-repository ppa:vbernat/haproxy-1.8
+apt-get update
+apt-get -y install haproxy
+echo "ENABLED=1" >> /etc/default/haproxy
+printf %s "listen 5819-webs
+    bind *:80
+    mode http
     balance roundrobin
-    server web1 ${WEB1_HOST}:80 check
-    server web2 ${WEB2_HOST}:80 check
-    server web1 web-01:80 check
-    server web2 web-02:80 check
-EOF
-
-# --- Restart HAProxy to apply changes ---
-@@ -79,4 +59,3 @@ sudo systemctl restart haproxy
-# --- Output 1 for automated checker ---
-echo 1
-
-"1-install_load_balancer" 68L, 1646C                                                                      53,15         Bot
+    server web-01 18.208.149.224:80 check
+    server web-02 98.93.251.113:80 check
+" >> /etc/haproxy/haproxy.cfg
+service haproxy restart
