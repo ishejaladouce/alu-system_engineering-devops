@@ -9,14 +9,14 @@ set -e
 STUDENT_ID="6791"
 
 # --- Hardcoded backend web server IPs ---
-WEB1_IP="44.212.2.129"   # 6791-web-01
-WEB2_IP="54.173.192.125"  # 6791-web-02
+WEB1_IP="18.208.149.224"   # 6791-web-01
+WEB2_IP="98.93.251.113"  # 6791-web-02
 
 # --- Construct backend hostnames with student ID ---
 WEB1_HOST="${STUDENT_ID}-web-01"
 WEB2_HOST="${STUDENT_ID}-web-02"
-WEB1_IP="44.212.2.129"  # IP of web-01
-WEB2_IP="54.173.192.125" # IP of web-02
+WEB1_IP="18.208.149.224"  # IP of web-01
+WEB2_IP="98.93.251.113" # IP of web-02
 
 # --- Update packages and install HAProxy ---
 sudo apt update -y
