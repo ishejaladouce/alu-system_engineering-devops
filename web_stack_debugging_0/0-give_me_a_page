@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Script to fix Apache web server and serve "Hello Holberton" page
+
+# Start Apache web server
+service apache2 start
+
+# Create the directory if it doesn't exist
+mkdir -p /var/www/html/
+
+# Create the required HTML file with "Hello Holberton" content
+echo "Hello Holberton" > /var/www/html/index.html
+
+# Restart Apache to ensure changes take effect
+service apache2 restart
