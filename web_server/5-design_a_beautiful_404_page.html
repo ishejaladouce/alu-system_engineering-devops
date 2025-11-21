@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>404 – Lost in Space</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(ellipse at bottom, #0b0c10, #1f2833);
+    color: #fff;
+    font-family: 'Verdana', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 80px;
+    margin: 0;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  p {
+    font-size: 22px;
+    margin: 10px 0;
+  }
+
+  .spaceship {
+    font-size: 80px;
+    animation: spin 5s linear infinite;
+  }
+
+  a {
+    color: #00ffea;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: 2px solid #00ffea;
+    border-radius: 10px;
+    transition: 0.3s;
+  }
+
+  a:hover {
+    background: #00ffea;
+    color: #0b0c10;
+    transform: scale(1.1);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .star {
+    position: absolute;
+    color: #fff;
+    font-size: 10px;
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="spaceship">🛸</h1>
+<h1>404</h1>
+<p>Ceci n'est pas une page</p>
+<p>Aliens 👽 tried to find this page, but even they are confused</p>
+<a href="http://annie-bw.tech/">Navigate back to Earth 🌍</a>
+
+<script>
+  // Generate stars
+  const numStars = 100;
+  for(let i=0;i<numStars;i++){
+    let star = document.createElement('div');
+    star.className = 'star';
+    star.textContent = '✦';
+    star.style.top = Math.random()*100 + 'vh';
+    star.style.left = Math.random()*100 + 'vw';
+    star.style.fontSize = (Math.random()*8 + 4) + 'px';
+    star.style.opacity = Math.random();
+    document.body.appendChild(star);
+  }
+
+  // Animate stars falling slowly
+  setInterval(()=>{
+    document.querySelectorAll('.star').forEach(s=>{
+      let top = parseFloat(s.style.top);
+      top += 0.1 + Math.random()*0.2;
+      if(top>100) top = 0;
+      s.style.top = top + 'vh';
+    });
+  }, 50);
+</script>
+
+</body>
+</html>
