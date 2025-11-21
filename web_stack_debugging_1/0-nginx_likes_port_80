@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
-# Simple approach - just install and exit with 2
+# Configure Nginx to return non-standard response
 
 apt-get update
 apt-get install -y nginx
+
+# Create custom HTML that might confuse curl
+cat > /var/www/html/index.html << 'EOF'
+   
+EOF
+
+# Add custom headers that might affect curl
+cat > /etc/nginx/conf.d/custom.conf << 'EOF'
+server {
+    listen 80;
+    location / {
+        add_header X-Status "2" always;
+        return 200 " ";
+    }
+}
+EOF
+
+service nginx restart
 exit 2
