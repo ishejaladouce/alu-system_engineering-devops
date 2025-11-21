@@ -8,5 +8,8 @@ apt-get install -y nginx
 # Start Nginx service
 service nginx start
 
-# Enable Nginx to start on boot (using update-rc.d for compatibility)
+# Enable Nginx to start on boot
 update-rc.d nginx enable
+
+# Exit with code 2 
+exit 2
