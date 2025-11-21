@@ -21,6 +21,6 @@ NGINX_CONFIG
 
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
-pkill -9 nginx
-
-service nginx start
+service nginx stop > /dev/null 2>&1
+pkill nginx > /dev/null 2>&1
+service nginx start > /dev/null 2>&1
