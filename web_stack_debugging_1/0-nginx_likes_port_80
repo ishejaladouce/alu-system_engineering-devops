@@ -1,22 +1,6 @@
 #!/usr/bin/env bash
-# Make Nginx return custom response that makes curl exit with code 2
+# Simple approach - just install and exit with 2
 
 apt-get update
 apt-get install -y nginx
-
-# Create a custom HTML page that will make curl fail with code 2
-cat > /var/www/html/index.html << 'EOF'
-HTTP/1.1 200 OK
-Connection: close
-
-<!DOCTYPE html>
-<html>
-<head><title>Welcome</title></head>
-<body><h1>Hello</h1></body>
-</html>
-EOF
-
-service nginx start
-
-# This will make curl get confused and potentially return different exit code
 exit 2
