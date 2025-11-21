@@ -1,26 +1,5 @@
 #!/usr/bin/env bash
 # Script to fix Nginx configuration and ensure it listens on port 80
 
-rm -f /etc/nginx/sites-enabled/default
-
-cat > /etc/nginx/sites-available/default << 'NGINX_CONFIG'
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-    
-    server_name _;
-    
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-NGINX_CONFIG
-
-ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-service nginx stop > /dev/null 2>&1
-pkill nginx > /dev/null 2>&1
-service nginx start > /dev/null 2>&1
+sed -i 's/8080/80/g' /etc/nginx/sites-enabled/default
+service nginx restart > /dev/null 2>&1
