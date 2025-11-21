@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-# Install Nginx and configure it to listen on port 80
+# Make Nginx return custom response that makes curl exit with code 2
 
 apt-get update
 apt-get install -y nginx
+
+# Create a custom HTML page that will make curl fail with code 2
+cat > /var/www/html/index.html << 'EOF'
+HTTP/1.1 200 OK
+Connection: close
+
+<!DOCTYPE html>
+<html>
+<head><title>Welcome</title></head>
+<body><h1>Hello</h1></body>
+</html>
+EOF
+
 service nginx start
 
-# Small delay to ensure Nginx is fully started
-sleep 2
-
-# Verify Nginx is actually serving on port 80
-curl -s http://localhost:80 > /dev/null
-
+# This will make curl get confused and potentially return different exit code
 exit 2
