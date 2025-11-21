@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 # Install Nginx and configure it to listen on port 80
 
-# Update package lists and install Nginx
 apt-get update
 apt-get install -y nginx
-
-# Start Nginx service
 service nginx start
 
-# Enable Nginx to start on boot
-update-rc.d nginx enable
+# Small delay to ensure Nginx is fully started
+sleep 2
 
-# Exit with code 2 
+# Verify Nginx is actually serving on port 80
+curl -s http://localhost:80 > /dev/null
+
 exit 2
