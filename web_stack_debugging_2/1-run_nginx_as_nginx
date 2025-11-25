@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# This script configures Nginx to run as the nginx user on port 8080
+
+# Backup original nginx.conf
+cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+
+# Modify nginx.conf to run as nginx user
+sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
+
+# Check if we need to modify the port in sites-enabled/default
+if [ -f /etc/nginx/sites-enabled/default ]; then
+    sed -i 's/listen 80;/listen 8080;/' /etc/nginx/sites-enabled/default
+fi
+
+# Check if we need to modify the port in nginx.conf (for newer versions)
+if grep -q "listen 80" /etc/nginx/nginx.conf; then
+    sed -i 's/listen 80;/listen 8080;/' /etc/nginx/nginx.conf
+fi
+
+# Ensure nginx user has proper permissions
+chown -R nginx:nginx /var/log/nginx
+chown -R nginx:nginx /var/lib/nginx
+
+# Fix potential PID file permission issues
+if [ -f /var/run/nginx.pid ]; then
+    chown nginx:nginx /var/run/nginx.pid
+fi
+
+# Stop any running nginx processes
+pkill nginx
+
+# Start nginx as nginx user
+sudo -u nginx nginx
+
+# Alternative method if the above doesn't work:
+# Update the init script or systemd service to run as nginx user
+if [ -f /etc/init.d/nginx ]; then
+    sed -i 's/^USER=.*/USER=nginx/' /etc/init.d/nginx
+    sed -i 's/^GROUP=.*/GROUP=nginx/' /etc/init.d/nginx
+fi
+
+echo "Nginx should now be running as nginx user on port 8080"
+
+# Verify the configuration
+echo "Checking nginx processes:"
+ps aux | grep nginx | grep -v grep
+
+echo "Checking port 8080:"
+netstat -tulpn | grep :8080 || ss -tulpn | grep :8080
