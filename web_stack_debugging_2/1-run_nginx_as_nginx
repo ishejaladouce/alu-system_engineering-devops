@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
 # Configure Nginx to run as nginx user and listen on port 8080
 
-# Stop any running nginx processes
-pkill -9 nginx 2>/dev/null || true
+# Stop any running nginx
+pkill -9 nginx
 
-# Update nginx.conf to run as nginx user
-sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
+# Configure nginx to run as nginx user
+sed -i "s/#user www-data;/user nginx;/" /etc/nginx/nginx.conf
+sed -i "s/user www-data;/user nginx;/" /etc/nginx/nginx.conf
 
-# Change all listening ports from 80 to 8080
-sed -i 's/listen 80 /listen 8080 /g' /etc/nginx/sites-available/default
-sed -i 's/listen 80;/listen 8080;/g' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80 /listen \[::\]:8080 /g' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80;/listen \[::\]:8080;/g' /etc/nginx/sites-available/default
+# Change port from 80 to 8080
+sed -i "s/listen 80;/listen 8080;/" /etc/nginx/sites-available/default
+sed -i "s/listen \[::\]:80;/listen \[::\]:8080;/" /etc/nginx/sites-available/default
 
-# Make sure nginx can write to necessary directories
-chown -R nginx:nginx /var/lib/nginx
+# Fix permissions
 chown -R nginx:nginx /var/log/nginx
+chown -R nginx:nginx /var/lib/nginx
 
-# Start nginx as nginx user 
-su -s /bin/bash -c '/usr/sbin/nginx' nginx
+# Start nginx as nginx user
+su -s /bin/sh -c "/usr/sbin/nginx" nginx
