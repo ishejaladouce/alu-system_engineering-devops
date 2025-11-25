@@ -1,78 +1,47 @@
 #!/usr/bin/env bash
-# This script safely configures Nginx to run as nginx user on port 8080
+# Configure Nginx to run as nginx user on port 8080 safely
 
-echo "Starting safe Nginx configuration..."
+# Create backup with timestamp
+backup_file="/etc/nginx/nginx.conf.backup.$(date +%Y%m%d_%H%M%S)"
+if [ -f /etc/nginx/nginx.conf ]; then
+    cp /etc/nginx/nginx.conf "$backup_file"
+    echo "Backup created: $backup_file"
+fi
 
-# First, check if Nginx is running and stop it gracefully
-if systemctl is-active --quiet nginx 2>/dev/null || pgrep nginx >/dev/null; then
-    echo "Stopping Nginx gracefully..."
-    systemctl stop nginx 2>/dev/null || nginx -s stop 2>/dev/null
+# Stop Nginx if running
+if pgrep nginx > /dev/null; then
+    echo "Stopping Nginx..."
+    nginx -s stop 2>/dev/null || pkill nginx
     sleep 2
 fi
 
-# Create backup of nginx.conf before making changes
-if [ -f /etc/nginx/nginx.conf ]; then
-    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup.$(date +%Y%m%d_%H%M%S)
-    echo "Backup created: /etc/nginx/nginx.conf.backup.$(date +%Y%m%d_%H%M%S)"
-fi
+# Set Nginx to run as nginx user
+sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
 
-# Safely modify user in nginx.conf
-if [ -f /etc/nginx/nginx.conf ]; then
-    if grep -q "^user " /etc/nginx/nginx.conf; then
-        sed -i 's/^user .*;/user nginx;/' /etc/nginx/nginx.conf
-        echo "Updated Nginx user to 'nginx'"
-    else
-        # Add user directive at the beginning of events block
-        sed -i '/^events {/i user nginx;' /etc/nginx/nginx.conf
-        echo "Added Nginx user directive"
-    fi
-fi
-
-# Update port configuration safely
-for config_file in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/* /etc/nginx/nginx.conf; do
-    if [ -f "$config_file" ] && grep -q "listen 80" "$config_file"; then
+# Change port from 80 to 8080 in all config files
+find /etc/nginx -name "*.conf" -type f | while read -r config_file; do
+    if grep -q "listen 80" "$config_file"; then
         sed -i 's/listen 80;/listen 8080;/g' "$config_file"
-        echo "Updated port to 8080 in: $config_file"
+        echo "Updated port in: $config_file"
     fi
-done 2>/dev/null
+done
 
-# Set proper permissions (non-destructive)
-if [ -d /var/log/nginx ]; then
-    chown nginx:nginx /var/log/nginx
-fi
-
-if [ -d /var/lib/nginx ]; then
-    chown -R nginx:nginx /var/lib/nginx
-fi
-
-# Create run directory with proper permissions
-mkdir -p /var/run/nginx
-chown nginx:nginx /var/run/nginx
+# Fix directory permissions
+chown nginx:nginx /var/log/nginx /var/lib/nginx 2>/dev/null
 
 # Test configuration before starting
-echo "Testing Nginx configuration..."
+echo "Testing configuration..."
 if sudo -u nginx nginx -t; then
-    echo "Configuration test passed. Starting Nginx..."
+    echo "Starting Nginx as nginx user..."
     sudo -u nginx nginx
 else
-    echo "ERROR: Configuration test failed. Restoring backup..."
-    cp /etc/nginx/nginx.conf.backup.* /etc/nginx/nginx.conf 2>/dev/null
-    echo "Please check your Nginx configuration manually"
+    echo "Config test failed - restoring backup"
+    cp "$backup_file" /etc/nginx/nginx.conf
     exit 1
 fi
 
-# Verification
-echo "=== Verification ==="
-echo "Nginx processes:"
+# Verify results
+echo "Verification:"
 pgrep -a nginx
-
-echo -e "\nChecking port 8080:"
-if netstat -tulpn 2>/dev/null | grep -q ":8080"; then
-    netstat -tulpn | grep ":8080"
-elif ss -tulpn 2>/dev/null | grep -q ":8080"; then
-    ss -tulpn | grep ":8080"
-else
-    echo "Nginx is not listening on port 8080"
-fi
-
-echo -e "\nConfiguration complete!"
+echo "Port check:"
+ss -tulpn | grep ":8080" || echo "Not found on 8080"
