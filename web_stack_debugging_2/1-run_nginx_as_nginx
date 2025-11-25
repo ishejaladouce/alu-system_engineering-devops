@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 # Configure Nginx to run as nginx user and listen on port 8080
 
+# Stop any running nginx processes
+pkill -9 nginx 2>/dev/null || true
+
 # Update nginx.conf to run as nginx user
-sed -i 's/user .*/user nginx;/' /etc/nginx/nginx.conf
+sed -i 's/^user .*/user nginx;/' /etc/nginx/nginx.conf
 
-# Change default site to listen on port 8080 instead of 80
-sed -i 's/listen 80/listen 8080/g' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80/listen \[::\]:8080/g' /etc/nginx/sites-available/default
+# Change all listening ports from 80 to 8080
+sed -i 's/listen 80 /listen 8080 /g' /etc/nginx/sites-available/default
+sed -i 's/listen 80;/listen 8080;/g' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80 /listen \[::\]:8080 /g' /etc/nginx/sites-available/default
+sed -i 's/listen \[::\]:80;/listen \[::\]:8080;/g' /etc/nginx/sites-available/default
 
-# Ensure nginx user exists (it should already exist)
-id -u nginx &>/dev/null || useradd -r -s /bin/false nginx
+# Make sure nginx can write to necessary directories
+chown -R nginx:nginx /var/lib/nginx
+chown -R nginx:nginx /var/log/nginx
 
-# Kill any running nginx processes
-pkill -f nginx
-
-# Start nginx as nginx user
-sudo -u nginx /usr/sbin/nginx
+# Start nginx as nginx user 
+su -s /bin/bash -c '/usr/sbin/nginx' nginx
