@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Configure Nginx to run as nginx user and listen on port 8080
 
-# Kill any running nginx processes
-pkill nginx
+# Stop any running nginx
+pkill nginx 2>/dev/null
 
 # Create nginx user if it doesn't exist
 id -u nginx &>/dev/null || useradd -r -M -s /bin/false nginx
@@ -16,15 +16,14 @@ sed -i "s/:80 /:8080 /g" /etc/nginx/sites-enabled/default
 sed -i "s/ 80;/ 8080;/g" /etc/nginx/sites-enabled/default
 sed -i "s/:80;/:8080;/g" /etc/nginx/sites-enabled/default
 
-# Set proper ownership and permissions for all nginx directories
-chown -R nginx:nginx /var/log/nginx
-chown -R nginx:nginx /var/lib/nginx
-chmod 755 /var/log/nginx
-chmod 755 /var/lib/nginx
+# Set proper ownership and permissions
+chown -R nginx:nginx /var/log/nginx 2>/dev/null
+chown -R nginx:nginx /var/lib/nginx 2>/dev/null
 
-# Fix permissions for pid file
+# Fix pid file permissions
+rm -f /run/nginx.pid
 touch /run/nginx.pid
 chown nginx:nginx /run/nginx.pid
 
 # Start nginx as nginx user
-sudo -u nginx /usr/sbin/nginx
+sudo -u nginx /usr/sbin/nginx 2>/dev/null
