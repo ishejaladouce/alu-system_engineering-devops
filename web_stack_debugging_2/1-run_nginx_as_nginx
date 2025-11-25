@@ -1,29 +1,7 @@
 #!/usr/bin/env bash
 # Configure Nginx to run as nginx user and listen on port 8080
-
-# Stop any running nginx
-pkill nginx 2>/dev/null
-
-# Create nginx user if it doesn't exist
-id -u nginx &>/dev/null || useradd -r -M -s /bin/false nginx
-
-# Change nginx user in configuration
-sed -i "s/user .*/user nginx;/" /etc/nginx/nginx.conf
-
-# Change ALL occurrences of port 80 to 8080
-sed -i "s/ 80 / 8080 /g" /etc/nginx/sites-enabled/default
-sed -i "s/:80 /:8080 /g" /etc/nginx/sites-enabled/default
-sed -i "s/ 80;/ 8080;/g" /etc/nginx/sites-enabled/default
-sed -i "s/:80;/:8080;/g" /etc/nginx/sites-enabled/default
-
-# Set proper ownership and permissions
-chown -R nginx:nginx /var/log/nginx 2>/dev/null
-chown -R nginx:nginx /var/lib/nginx 2>/dev/null
-
-# Fix pid file permissions
-rm -f /run/nginx.pid
-touch /run/nginx.pid
-chown nginx:nginx /run/nginx.pid
-
-# Start nginx as nginx user
-sudo -u nginx /usr/sbin/nginx 2>/dev/null
+sed -i "s/#user www-data/user nginx/" /etc/nginx/nginx.conf
+sed -i "s/80/8080/g" /etc/nginx/sites-available/default
+chmod 644 /etc/nginx/nginx.conf
+pkill apache2
+sudo -u nginx service nginx start
