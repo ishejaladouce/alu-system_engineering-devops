@@ -1,20 +1,30 @@
 #!/usr/bin/env bash
 # Configure Nginx to run as nginx user and listen on port 8080
 
-# Stop any running nginx
-pkill -9 nginx
+# Kill any running nginx processes
+pkill nginx
 
-# Configure nginx to run as nginx user
-sed -i "s/#user www-data;/user nginx;/" /etc/nginx/nginx.conf
-sed -i "s/user www-data;/user nginx;/" /etc/nginx/nginx.conf
+# Create nginx user if it doesn't exist
+id -u nginx &>/dev/null || useradd -r -M -s /bin/false nginx
 
-# Change port from 80 to 8080
-sed -i "s/listen 80;/listen 8080;/" /etc/nginx/sites-available/default
-sed -i "s/listen \[::\]:80;/listen \[::\]:8080;/" /etc/nginx/sites-available/default
+# Change nginx user in configuration
+sed -i "s/user .*/user nginx;/" /etc/nginx/nginx.conf
 
-# Fix permissions
+# Change ALL occurrences of port 80 to 8080
+sed -i "s/ 80 / 8080 /g" /etc/nginx/sites-enabled/default
+sed -i "s/:80 /:8080 /g" /etc/nginx/sites-enabled/default
+sed -i "s/ 80;/ 8080;/g" /etc/nginx/sites-enabled/default
+sed -i "s/:80;/:8080;/g" /etc/nginx/sites-enabled/default
+
+# Set proper ownership and permissions for all nginx directories
 chown -R nginx:nginx /var/log/nginx
 chown -R nginx:nginx /var/lib/nginx
+chmod 755 /var/log/nginx
+chmod 755 /var/lib/nginx
+
+# Fix permissions for pid file
+touch /run/nginx.pid
+chown nginx:nginx /run/nginx.pid
 
 # Start nginx as nginx user
-su -s /bin/sh -c "/usr/sbin/nginx" nginx
+sudo -u nginx /usr/sbin/nginx
